@@ -5,7 +5,7 @@ LABEL maintainer="Daisuke Kobayashi <daisuke@daisukekobayashi.com>"
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update \
-      && apt-get install -y cmake g++ wget unzip \
+      && apt-get install -y cmake g++ wget unzip git \
       && rm -rf /var/lib/apt/lists/*
 
 # Download and unpack sources
@@ -20,7 +20,16 @@ RUN cmake  ../opencv-4.x
 # Build
 RUN cmake --build . -j 8
 
-COPY configure.sh /tmp/
+RUN apt-get update \
+      &&apt-get install -y gpg wget
+
+RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null \
+      && echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null \
+      && apt-get update \
+      && rm /usr/share/keyrings/kitware-archive-keyring.gpg \
+      && apt-get install -y kitware-archive-keyring \
+      && apt-get install -y cmake 
+RUN cmake --version
 
 ARG SOURCE_BRANCH=unspecified
 ENV SOURCE_BRANCH $SOURCE_BRANCH
@@ -30,10 +39,12 @@ ENV SOURCE_COMMIT $SOURCE_COMMIT
 
 ARG CONFIG
 
-RUN apt-get update && apt-get install -y git
+ENV LD_LIBRARY_PATH="/usr/local/cuda-11.5/compat:${LD_LIBRARY_PATH}" 
+
+COPY configure_cmake.sh /tmp/
 
 RUN git clone https://github.com/AlexeyAB/darknet.git && cd darknet \
       && git checkout $SOURCE_BRANCH \
       && git reset --hard $SOURCE_COMMIT \
-      && /tmp/configure.sh $CONFIG && make \
-      && cp darknet /usr/local/bin
+      && /tmp/configure_cmake.sh $CONFIG \
+      && cp /darknet/build_release/darknet /usr/local/bin

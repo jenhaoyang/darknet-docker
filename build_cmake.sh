@@ -1,7 +1,8 @@
 #!/bin/bash
 
-for var in cpu cpu-noopt gpu gpu-cc53 gpu-cc60 gpu-cc61 gpu-cc62 gpu-cc70 gpu-cc72 gpu-cc75 gpu-cc80 gpu-cc86 \
-          cpu-cv cpu-noopt-cv gpu-cv gpu-cv-cc53 gpu-cv-cc60 gpu-cv-cc61 gpu-cv-cc62 gpu-cv-cc70 gpu-cv-cc72 gpu-cv-cc75 gpu-cv-cc80 gpu-cv-cc86
+# for var in cpu cpu-noopt gpu gpu-cc53 gpu-cc60 gpu-cc61 gpu-cc62 gpu-cc70 gpu-cc72 gpu-cc75 gpu-cc80 gpu-cc86 \
+#           cpu-cv cpu-noopt-cv gpu-cv gpu-cv-cc53 gpu-cv-cc60 gpu-cv-cc61 gpu-cv-cc62 gpu-cv-cc70 gpu-cv-cc72 gpu-cv-cc75 gpu-cv-cc80 gpu-cv-cc86
+for var in gpu-cv
 do
   DOCKER_REPO="darknet-docker"
   SOURCE_BRANCH="master"
@@ -49,6 +50,5 @@ if [[ "$DOCKER_TAG" == *cv* ]]; then
   fi
 fi
 
-docker push $DOCKER_REPO:$DOCKER_TAG
 done
 
